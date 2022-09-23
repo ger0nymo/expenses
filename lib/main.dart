@@ -10,7 +10,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -27,15 +26,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -45,6 +35,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Expense> _expenses = [];
 
+  List<String> _months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
+
+  @override
   void initState() {
     super.initState();
     _getSms();
@@ -55,9 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
     SmsQuery query = new SmsQuery();
     List<SmsMessage> messages = await query.querySms(address: "+36303444332");
 
-    //Loop through the messages. If the text has "Összeg: " in it, then it's a payment message.
-    //The template is "... Összeg: N HUF ..." where N is the amount. So we need to extract the number.
-    //Maybe we will create an Expense object that will contain amount, date, shop
     messages.forEach((element) {
       if (element.body!.contains("Összeg: ") &&
           !element.body!.contains("ÉRVÉNYTELEN") &&
@@ -83,10 +86,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         backgroundColor: const Color.fromARGB(255, 31, 31, 31),
         centerTitle: true,
+        actions: [
+          IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              print('Icon pressed');
+            },
+          )
+        ],
         title: const Text(
           'Expenses app',
           style: TextStyle(color: Colors.white, fontFamily: 'Quicksand'),
@@ -95,18 +105,43 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          //Display the expenses, mark the months with a divider
           children: _expenses.isEmpty
-              ? [CircularProgressIndicator()]
-              : <Widget>[
+              ? [const CircularProgressIndicator()]
+              : //Display the list of expenses like below, but display the name of the month before only the first expense of that month. Dont show
+
+              <Widget>[
                   Expanded(
                     child: ListView.builder(
                       itemCount: _expenses.length,
                       itemBuilder: (context, index) {
-                        //Return the expense widget as a pressable button
-                        return TextButton(
-                          onPressed: () {},
-                          child: ExpenseWidget(_expenses[index]),
+                        return Column(
+                          children: [
+                            //Check if the current month is the same as the previous one. If not, display the month name.
+                            if (index == 0 ||
+                                _expenses[index].date.split(".")[1] !=
+                                    _expenses[index - 1].date.split(".")[1])
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    padding: EdgeInsets.fromLTRB(15, 15, 0, 10),
+                                    child: Text(
+                                      '${_expenses[index].date.split('.')[0]} ${_months[int.parse(_expenses[index].date.split(".")[1]) - 1]}',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Quicksand',
+                                          fontSize: 30),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            TextButton(
+                              //put border radius
+                              onPressed: () {},
+                              child: ExpenseWidget(_expenses[index]),
+                            ),
+                          ],
                         );
                       },
                     ),

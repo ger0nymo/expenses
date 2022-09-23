@@ -35,6 +35,12 @@ class ExpenseWidget extends StatelessWidget {
         .toUpperCase();
 
     return Container(
+      //put border radius
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(99, 99, 98, 98),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Row(
         children: [
