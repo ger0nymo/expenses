@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'Expense.dart';
 
@@ -74,8 +75,10 @@ class _MyHomePageState extends State<MyHomePage> {
         String shop = element.body!.split(", ").reversed.toList()[1];
         shop = shop.replaceAll("  ", " ").substring(1);
 
+        DateTime dateTime = DateFormat("yyyy.MM.dd HH:mm:ss").parse(date);
+
         setState(() {
-          _expenses.add(Expense(date, amountInt, shop));
+          _expenses.add(Expense(dateTime, amountInt, shop));
         });
       }
     });
@@ -107,9 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: _expenses.isEmpty
               ? [const CircularProgressIndicator()]
-              : //Display the list of expenses like below, but display the name of the month before only the first expense of that month. Dont show
-
-              <Widget>[
+              : <Widget>[
                   Expanded(
                     child: ListView.builder(
                       itemCount: _expenses.length,
@@ -118,8 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             //Check if the current month is the same as the previous one. If not, display the month name.
                             if (index == 0 ||
-                                _expenses[index].date.split(".")[1] !=
-                                    _expenses[index - 1].date.split(".")[1])
+                                _expenses[index].date.month !=
+                                    _expenses[index - 1].date.month)
                               Padding(
                                 padding: const EdgeInsets.only(top: 20),
                                 child: Align(
@@ -127,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   child: Container(
                                     padding: EdgeInsets.fromLTRB(15, 15, 0, 10),
                                     child: Text(
-                                      '${_expenses[index].date.split('.')[0]} ${_months[int.parse(_expenses[index].date.split(".")[1]) - 1]}',
+                                      '${_expenses[index].date.year} ${_months[_expenses[index].date.month - 1]}',
                                       style: const TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Quicksand',
