@@ -1,17 +1,62 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class Expense {
+  int id;
   DateTime date;
   int amount;
   String shop;
-  Expense(this.date, this.amount, this.shop);
+  String category;
+  Expense(this.id, this.date, this.amount, this.shop, this.category);
+
+  static fromJson(String e) {
+    List<String> parts = e.split(';');
+    return Expense(int.parse(parts[0]), DateTime.parse(parts[1]),
+        int.parse(parts[2]), parts[3].trim(), parts[4].trim());
+  }
+
+  static Map<String, IconData> categories = {
+    "Food": Icons.fastfood,
+    "Transport": Icons.directions_bus,
+    "Groceries": Icons.local_grocery_store,
+    "Entertainment": Icons.movie,
+    "Health": Icons.local_hospital,
+    "Clothes": Icons.shopping_bag,
+    "Other": Icons.question_mark
+  };
+
+  static Map<String, String> categoryMeanings = {
+    "spar": "Groceries",
+    "tesco": "Groceries",
+    "bu:fe": "Food",
+    "cola": "Food",
+    "riot": "Entertainment",
+    "ne'pliget": "Transport",
+    "diepthanhtam": "Groceries",
+    "dm": "Groceries",
+    "pull&bear": "Clothes",
+    "h&m": "Clothes",
+    "kfc": "Food",
+    "epic games": "Entertainment",
+    "disney": "Entertainment",
+    "steam": "Entertainment",
+    "fusion": "Food",
+    "kemences": "Food",
+    "pekseg": "Food",
+    "neu*": "Food",
+    "jetbrains": "Entertainment",
+    "spotify": "Entertainment",
+  };
+
+  String toJson() {
+    return '$id;${date.toIso8601String()};$amount;$shop;$category';
+  }
 }
 
 class ExpenseWidget extends StatelessWidget {
   final Expense expense;
 
-  List<String> months = [
+  final List<String> months = [
     'January',
     'February',
     'March',
@@ -30,8 +75,6 @@ class ExpenseWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int expenseYear = expense.date.year;
-    int expenseMonth = expense.date.month;
     String expenseDay = expense.date.day.toString();
     String expenseShopName = expense.shop.length < 23
         ? expense.shop
@@ -45,7 +88,7 @@ class ExpenseWidget extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Color.fromARGB(99, 99, 98, 98),
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(0)),
       ),
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Row(
@@ -76,29 +119,34 @@ class ExpenseWidget extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                  child: Text(
+              Text(
                 expenseShopName,
                 style: const TextStyle(
                   color: Colors.white,
                   fontFamily: 'Quicksand',
                   fontSize: 11,
                 ),
-              )),
+              ),
               Container(
-                  padding: EdgeInsets.only(top: 2),
+                  padding: const EdgeInsets.only(top: 2),
                   child: Row(
-                    children: const [
-                      Icon(Icons.question_mark, size: 30, color: Colors.white),
-                      SizedBox(
+                    children: [
+                      //Get icon by expense.category from categories map
+                      Icon(
+                        Expense.categories[expense.category],
+                        color: Colors.white,
+                        size: 23,
+                      ),
+
+                      const SizedBox(
                         width: 5,
                       ),
                       Text(
-                        'Category',
-                        style: TextStyle(
+                        expense.category,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontFamily: 'Quicksand',
-                          fontSize: 25,
+                          fontSize: 20,
                         ),
                       ),
                     ],
@@ -114,8 +162,7 @@ class ExpenseWidget extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontFamily: 'Quicksand',
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
                 ),
               ),
             ],
